@@ -32,8 +32,8 @@
               bg-color="transparent"
               class="custom-text-field rounded-textfield"
               rounded="lg"
-              width="100%"
-              max-width="400"
+              width="80%"
+              max-width="500"
             >
               <template v-slot:prepend-inner>
                 <v-icon icon="mdi-account" color="white"></v-icon>
@@ -48,8 +48,8 @@
               type="password"
               class="custom-text-field rounded-textfield"
               rounded="lg"
-              width="100%"
-              max-width="400"
+              width="80%"
+              max-width="500"
             >
               <template v-slot:prepend-inner>
                 <v-icon icon="mdi-lock" color="white"></v-icon>
@@ -63,11 +63,25 @@
           <div class="text-center mb-4">
             <router-link to="/forgot_pass" class="forgot-password-link">Forgot Password?</router-link>
           </div>
-          <v-btn color="#4c8479" @click="Login" rounded="pill" class="login-btn mb-4"  block size="x-large">
+          <v-btn 
+            color="#4c8479" 
+            @click="Login" 
+            rounded="pill" 
+            class="login-btn mb-4"  
+            block 
+            size="x-large"
+            max-width="500"
+          >
             <span class="white--text" >Login</span>
           </v-btn>
           <div class="text-center mb-4">or</div>
-          <v-btn color="#bed2d0" rounded="pill" class="create-account-btn mb-4" block size="x-large">
+          <v-btn 
+            color="#bed2d0" 
+            rounded="pill" 
+            class="create-account-btn mb-4" 
+            block 
+            size="x-large"
+          >
             <span class="create-account-text">Create an account</span>
           </v-btn>
           <div class="d-flex justify-center">
@@ -102,8 +116,14 @@ const Login = async () => {
     password: password.value
   }
   const response = await axios.post("http://localhost:7000/login", forms);
+
   const token = response.data.token
+  const fullname = response.data.fullname
+  const username = response.data.username
+
   localStorage.setItem("token",token)
+  localStorage.setItem("fullname",fullname)
+  localStorage.setItem("username",username)
 
   console.log(response.data)
 
@@ -167,8 +187,8 @@ const Login = async () => {
   color: #2b524a;
 }
 .custom-padding {
-  padding-left: 80px !important;
-  padding-right: 80px !important;
+  padding-left: 40px !important;
+  padding-right: 40px !important;
 }
 .clickable-avatar {
   cursor: pointer;
@@ -178,7 +198,7 @@ const Login = async () => {
   opacity: 0.8;
 }
 :deep(.custom-text-field) {
-  width: 100%;
+  width: 80%;
   max-width: 400px;
 }
 :deep(.custom-text-field .v-field__outline) {

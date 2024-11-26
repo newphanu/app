@@ -215,7 +215,7 @@
                 <v-icon>mdi-email</v-icon>
                 Mail
             </v-btn>
-            <v-btn value="profile">
+            <v-btn value="profile" @click="profile">
                 <v-icon>mdi-account</v-icon>
                 Profile
             </v-btn>
@@ -328,6 +328,10 @@ const previewSingleFile = () => {
     } else {
         singleFilePreview.value = null;
     }
+}
+
+const profile = () => {
+    router.push('/student_profile_1')
 }
 </script>
 

@@ -144,24 +144,34 @@ app.post('/insertMember', upload.single('picture'), async (req, res) => {
 
 app.post('/upload-single', upload.single('picture'), async (req, res) => {
   try {
-    console.log('file=', req.file)
-    console.log('username=', req.body.username)
-    console.log('password=', req.body.password)
-    console.log('fullname=', req.body.fullname)
-    console.log('student_id=', req.body.student_id)
-    let insert = await knex('student')
-    .where({ username: req.body.username })
-    .update({
-        picture: req.file.filename
-    });
+    if (!req.file) {
+      return res.status(400).json({ status: 0, message: "ไม่พบไฟล์อัปโหลด" });
+    }
+
+    const { username } = req.body; // รับ username
+    console.log('file=', req.file);
+    console.log('username=', username);
+
+    // อัปเดตรูปภาพในฐานข้อมูล
+    await knex('student')
+      .where({ username: username }) // ตรวจสอบจาก username
+      .update({
+        picture: req.file.filename, // อัปเดตชื่อไฟล์ที่อัปโหลด
+      });
+
     res.send({
+      status: 1,
       message: 'อัปโหลดไฟล์สำเร็จ',
-      file: req.file
+      file: req.file.filename,
     });
   } catch (error) {
-    res.send({ status: 0, error: error.messege });
+    console.error('Error uploading file:', error);
+    res.status(500).send({
+      status: 0,
+      message: 'เกิดข้อผิดพลาดในการอัปโหลดไฟล์',
+      error: error.message,
+    });
   }
-  
 });
 
 // API สำหรับอัปโหลดหลายไฟล์
@@ -299,11 +309,33 @@ app.get('/listStudent', async (req, res) => {
   }
 })
 
-app.post('/login1', (req, res) => {
-  const user = { id: 1, username: 'test' }; // ตัวอย่างผู้ใช้
-  const token = jwt.sign(user, SECRET_KEY, { expiresIn: '1h' }); // สร้าง JWT Token
-  res.json({ token }); // ส่ง JWT Token กลับไปให้ฝั่ง Client
+app.post('/checkUser', async (req, res) => {
+  const { username } = req.body; // ดึง username จาก req.body
+
+  if (!username) {
+    return res.status(400).json({ status: 0, message: "กรุณาระบุ username" });
+  }
+
+  try {
+    let row = await knex("student").where({ username });
+
+    if (row.length === 0) {
+      return res.status(404).json({ status: 0, message: "username ไม่ถูกต้อง" });
+    }
+
+    const userFromDB = row[0];
+
+    return res.json({ 
+      status: 1, 
+      message: "เรียกข้อมูลสำเร็จ", 
+      user: userFromDB 
+    });
+  } catch (error) {
+    console.error('Error querying database:', error);
+    return res.status(500).json({ status: 0, message: "เกิดข้อผิดพลาด" });
+  }
 });
+
 
 // Route สำหรับการเข้าสู่ระบบ
 app.post("/login", async (req, res) => {
@@ -331,7 +363,13 @@ app.post("/login", async (req, res) => {
     );
 
     // ส่ง token กลับไปยัง client
-    return res.json({ status: 1, token });
+    return res.json({ 
+      status: 1, 
+      token, 
+      fullname: userFromDB.fullname,
+      username: userFromDB.username,
+      picture: userFromDB.picture
+    });
   } catch (e) {
     // จัดการข้อผิดพลาด
     console.error("Error:", e.message);

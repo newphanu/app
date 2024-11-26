@@ -10,6 +10,7 @@
         icon="mdi-arrow-left" 
         color="white" 
         class="back-button"
+        @click="goback"
       ></v-btn>
       
       <div class="profile-section">
@@ -38,8 +39,8 @@
             ></v-btn>
           </div>
           
-          <div class="white--text text-h6 mb-1">Nopparat Inmee</div>
-          <div class="white--text text-subtitle-2">Nopparat@reallygreatsite.com</div>
+          <div class="white--text text-h6 mb-1">{{ fullname }}</div>
+          <div class="white--text text-subtitle-2">{{ username }}</div>
         </div>
       </div>
     </v-app-bar>
@@ -134,7 +135,35 @@
 </template>
 
 <script setup>
-// ไม่จำเป็นต้องใช้ script
+import axios from 'axios'
+import { ref, onMounted } from 'vue'
+import { useRouter } from 'vue-router'
+
+const router = useRouter()
+const fullname = localStorage.getItem('fullname')
+const username = localStorage.getItem('username')
+
+onMounted( async () => {
+    const token = localStorage.getItem('token');
+    console.log('check token from api = ',token)
+
+    try {
+    const response = await axios.get('http://localhost:7000/checkToken', {
+        headers: {
+            Authorization: `Bearer ${token}`
+        },
+    })
+    console.log('data = ',response.data)
+    } catch(error) {
+        console.error('Error:', error.response.data);
+        alert('กรุณา login ก่อน');
+        router.push('/login');
+    }
+});
+
+const goback = () => {
+  router.push('/student_list')
+}
 </script>
 
 <style scoped>

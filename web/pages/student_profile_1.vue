@@ -10,6 +10,7 @@
           icon="mdi-arrow-left" 
           color="white" 
           class="back-button"
+          @click="goBack"
         ></v-btn>
         
         <div class="profile-section">
@@ -174,14 +175,17 @@
   import axios from 'axios'
   import { ref, onMounted } from 'vue'
   import defaultImage from '@/assets/images/profile1.png' // รูปเริ่มต้น
+  import { useRouter } from 'vue-router'
+
+  const router = useRouter()
 
   const isDialogOpen = ref(false)
-  const userData = ref('')
+  // const userData = ref('')
   const fullname = ref('')
   const username = ref('')
   const singleFile = ref(null)
   const singleFilePreview = ref(null)
-  const selectedImage = ref(defaultImage)
+  const selectedImage = ref('')
   // ref สำหรับ input file
   const fileInput = ref(null)
   
@@ -191,63 +195,79 @@
   }
 
   const uploadSingleFile = async () => {
-    if (singleFile.value) {
-      const formData = new FormData();
-      formData.append('picture', singleFile.value);
-      formData.append('username', username.value);
+  if (singleFile.value) {
+    const formData = new FormData();
+    formData.append('picture', singleFile.value);
+    formData.append('username', username.value);
 
-      try {
-          const response = await axios.post('http://localhost:7000/upload-single', formData, {
-              headers: {
-                  'Content-Type': 'multipart/form-data'
-              }
-          });
-          console.log('Response:', response.data);
-          alert(response.data.message);
-          listProfile();
-      } catch (error) {
-          console.error('Upload single file error:', error);
-      } finally {
-          // ล้าง preview หลังจากการอัปโหลด
-          // URL.revokeObjectURL(singleFilePreview.value);
-          // singleFilePreview.value = null;
+    try {
+      const response = await axios.post('http://localhost:7000/upload-single', formData, {
+        headers: {
+          'Content-Type': 'multipart/form-data',
+        },
+      });
+      console.log('Response:', response.data);
+      alert(response.data.message);
+
+      if (response.data.status === 1) {
+        selectedImage.value = `http://localhost:7000/uploads/profile/${response.data.file}`;
       }
+    } catch (error) {
+      console.error('Upload single file error:', error);
+      alert('เกิดข้อผิดพลาดในการอัปโหลด');
     }
   }
+};
 
-  const listProfile = async () => {
-    try {
-        const response = await axios.get('http://localhost:7000/listStudent');
-        userData.value = response.data.datas;
-        fullname.value = userData.value[0].fullname;
-        username.value = userData.value[0].username
-        selectedImage.value = `http://localhost:7000/uploads/profile/${userData.value[0].picture}`;
-    } catch (error) {
-        console.error('Error fetching data:', error);
+  const loadUsername = () => {
+    const storedUsername = localStorage.getItem('username')
+    username.value = storedUsername
+  }
+
+  const checkUser = async () => {
+  try {
+    const response = await axios.post('http://localhost:7000/checkUser', {
+      username: username.value,
+    });
+
+    console.log(response.data)
+    if (response.data.status === 1) {
+      const user = response.data.user;
+      fullname.value = user.fullname;
+      username.value = user.username;
+      selectedImage.value = user.picture
+        ? `http://localhost:7000/uploads/profile/${user.picture}`
+        : defaultImage; // ถ้าไม่มีรูป ให้ใช้รูปเริ่มต้น
+    } else {
+      alert(response.data.message);
     }
-  };
+  } catch (error) {
+    console.error('Error fetching user data:', error);
+    alert('เกิดข้อผิดพลาดในการเรียกข้อมูล');
+  }
+};
+
 
   const previewSingleFile = (event) => {
     singleFilePreview.value = URL.createObjectURL(event)
   }
 
-  // โหลดข้อมูลเมื่อคอมโพเนนต์โหลดเสร็จ
   onMounted(() => {
-    listProfile();
+    loadUsername();
+    checkUser();
   });
 
-  // ฟังก์ชันเมื่อเลือกไฟล์
   const onFileSelected = (event) => {
-    const file = event.target.files[0]
-    if (file) {
-      // สร้าง URL สำหรับไฟล์ที่เลือก
-      const imageUrl = URL.createObjectURL(file)
-      selectedImage.value = imageUrl
-      
-      // ถ้าต้องการส่งไฟล์ไปที่เซิร์ฟเวอร์
-      uploadImage(file)
-    }
+  const file = event.target.files[0];
+  if (file) {
+    singleFile.value = file; // เก็บไฟล์ไว้ใน `singleFile`
+    singleFilePreview.value = URL.createObjectURL(file); // สร้าง preview
+
+    // หากต้องการอัปโหลดทันทีเมื่อเลือกไฟล์
+    // uploadSingleFile();
   }
+};
+
   
   // ถ้าต้องการอัพโหลดไฟล์ไปที่เซิร์ฟเวอร์
   const uploadImage = async (file) => {
@@ -263,6 +283,9 @@
     }
   }
   
+  const goBack = () => {
+    router.push('/student_list')
+  }
   </script>
   
   <style scoped>
