@@ -126,6 +126,7 @@
         <v-main class="bg-grey-lighten-3"> <!-- เพิ่มสีพื้นหลังหลัก -->
             <v-container class="px-2">
                 <div class="text-subtitle-2 text-grey-darken-1 mb-4">
+                    {{ fullname }}<br>
                     E1 เทคโนโลยีสารสนเทศ<br>
                     ครูที่ปรึกษา : ครูกฤษณุา แนววิเศษ
                 </div>
@@ -253,8 +254,14 @@ const listData = async () => {
     }
 };
 
+const loadFullname = () => {
+    const storedFullname = localStorage.getItem('fullname')
+    fullname.value = storedFullname
+}
+
 // โหลดข้อมูลเมื่อคอมโพเนนต์โหลดเสร็จ
 onMounted( async () => {
+    loadFullname();
     const token = localStorage.getItem('token');
     // const token = '1234'
     console.log('check token from api = ',token)
