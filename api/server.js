@@ -79,6 +79,7 @@ app.post('/deleteMember', async (req, res) => {
 
 // API สำหรับอัปเดตข้อมูลสมาชิก
 app.post('/updateMember', upload.single('picture'), async (req, res) => {
+  console.log(req.body)
   try {
     const { student_id, fullname, username, password } = req.body;
 

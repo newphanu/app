@@ -2,7 +2,7 @@
   <v-app>
     <v-app-bar app color="transparent" elevation="0">
       <v-app-bar-nav-icon color="white">
-        <v-icon>mdi-dots-horizontal</v-icon>
+        <v-img src="/img/ctc.png"></v-img>
       </v-app-bar-nav-icon>
     </v-app-bar>
 
@@ -11,22 +11,21 @@
         <v-row no-gutters class="fill-height flex-column justify-center">
           <v-col class="d-flex flex-column align-center">
             <div class="circular-image mb-4">
-              <!-- <v-icon icon="mdi-account" color="white" size="40"></v-icon> -->
-              <!-- <v-img
-                src="/path/to/student-cartoon-image.png"
-                alt="Student Cartoon"
+              <v-img
+                src="/img/ctc.png"
+                alt="Student"
                 width="100%"
                 height="100%"
                 cover
-              ></v-img> -->
+              ></v-img>
             </div>
             <div class="text-wrapper mb-6">
-              <div class="student-text font-weight-bold">student</div>
-              <div class="check-app-text">CHECK APP</div>
+              <div class="student-text font-weight-bold">เช็คชื่อนักศึกษา</div>
+              <div class="check-app-text">วิทยาลัยเทคนิคชัยภูมิ</div>
             </div>
             <v-text-field
               v-model="email"
-              label="Email or Phone"
+              label="อีเมล"
               variant="outlined"
               color="white"
               bg-color="transparent"
@@ -41,7 +40,7 @@
             </v-text-field>
             <v-text-field
               v-model="password"
-              label="Password"
+              label="รหัสผ่าน"
               variant="outlined"
               color="white"
               bg-color="transparent"
@@ -61,7 +60,7 @@
       <v-card class="white-card custom-rounded-top" elevation="0" width="100%">
         <v-card-text class="custom-padding">
           <div class="text-center mb-4">
-            <router-link to="/forgot_pass" class="forgot-password-link">Forgot Password?</router-link>
+            <router-link to="/forgot_pass" class="forgot-password-link">ลืมรหัสผ่าน?</router-link>
           </div>
           <v-btn 
             color="#4c8479" 
@@ -72,17 +71,18 @@
             size="x-large"
             max-width="500"
           >
-            <span class="white--text" >Login</span>
+            <span class="white--text" >เข้าสู่ระบบ</span>
           </v-btn>
-          <div class="text-center mb-4">or</div>
+          <div class="text-center mb-4">หรือ</div>
           <v-btn 
             color="#bed2d0" 
             rounded="pill" 
             class="create-account-btn mb-4" 
             block 
             size="x-large"
+            @click="register"
           >
-            <span class="create-account-text">Create an account</span>
+            <span class="create-account-text">ลงทะเบียน</span>
           </v-btn>
           <div class="d-flex justify-center">
             <v-avatar color="#1877F2" size="large" class="mx-2 clickable-avatar">
@@ -128,10 +128,13 @@ const Login = async () => {
   console.log(response.data)
 
   if (response.data.status === 1) {
-    router.push('/student_list');
+    router.push('/student_list2');
   }
 }
 
+const register = () => {
+  router.push('/account2')
+}
 </script>
 
 <style scoped>
@@ -158,7 +161,7 @@ const Login = async () => {
   align-items: center;
 }
 .student-text {
-  font-size: 60px;
+  font-size: 40px;
   color: #edb232;
   line-height: 1;
 }

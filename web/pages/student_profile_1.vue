@@ -237,7 +237,7 @@
       username.value = user.username;
       selectedImage.value = user.picture
         ? `http://localhost:7000/uploads/profile/${user.picture}`
-        : defaultImage; // ถ้าไม่มีรูป ให้ใช้รูปเริ่มต้น
+        : defaultImage;
     } else {
       alert(response.data.message);
     }
@@ -284,7 +284,7 @@
   }
   
   const goBack = () => {
-    router.push('/student_list')
+    router.push('/student_list2')
   }
   </script>
   

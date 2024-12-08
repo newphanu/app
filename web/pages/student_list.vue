@@ -4,7 +4,7 @@
         <v-app-bar color="teal-darken-2" elevation="2">
             <template v-slot:prepend>
                 <div class="rounded-circle d-flex justify-center align-center"
-                    style="background-color: white; width: 40px; height: 40px;">
+                    style="background-color: white; width: 40px; height: 40px;" @click="goBack">
                     <v-icon color="teal-darken-2" size="24">mdi-arrow-left</v-icon>
                 </div>
             </template>
@@ -50,7 +50,7 @@
                     >
                     <v-text-field
                         label="ชื่อ - นามสกุล"
-                        v-model="fullname"
+                        v-model="name"
                         required
                     ></v-text-field>
                     </v-col>
@@ -162,7 +162,7 @@
                                     <v-card-text>
                                         <v-row dense>
                                             <v-col cols="12" md="4" sm="6">
-                                                <v-text-field label="รหัสนักศึกษา" v-model="item.student_id" required></v-text-field>
+                                                <v-text-field disabled="" label="รหัสนักศึกษา" v-model="item.student_id" required></v-text-field>
                                             </v-col>
                                             <v-col cols="12" md="4" sm="6">
                                                 <v-text-field label="ชื่อ - นามสกุล" v-model="item.fullname" required></v-text-field>
@@ -173,9 +173,9 @@
                                             <v-col cols="12" md="4" sm="6">
                                                 <v-text-field label="รหัสผ่าน" type="password" v-model="item.password" required></v-text-field>
                                             </v-col>
-                                            <v-col cols="12" sm="6">
+                                            <!-- <v-col cols="12" sm="6">
                                                 <v-file-input v-model="item.singleFile" label="รูปโปรไฟล์" accept="image/*"></v-file-input>
-                                            </v-col>
+                                            </v-col> -->
                                         </v-row>
                                     </v-card-text>
 
@@ -183,7 +183,7 @@
 
                                     <v-card-actions>
                                         <v-spacer></v-spacer>
-                                        <v-btn text="Close" variant="plain" @click="handleEdit"></v-btn>
+                                        <v-btn text="Close" variant="plain" @click="closeEdit"></v-btn>
                                         <v-btn color="primary" text="Edit" variant="tonal" @click="handleEdit(item)"></v-btn>
                                     </v-card-actions>
                                 </v-card>
@@ -204,7 +204,7 @@
 
         <!-- Bottom Navigation -->
         <v-bottom-navigation grow color="teal-darken-2">
-            <v-btn value="home">
+            <v-btn value="home" @click="goCheck">
                 <v-icon>mdi-home</v-icon>
                 Home
             </v-btn>
@@ -232,12 +232,12 @@ import { ref, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 
 const router = useRouter()
-
 const dialog = ref(false);
 const studentid = ref('');
 const username = ref('');
 const password = ref('');
 const fullname = ref('');
+const name = ref('');
 const singleFile = ref(null);
 const singleFilePreview = ref(null);
 
@@ -263,7 +263,6 @@ const loadFullname = () => {
 onMounted( async () => {
     loadFullname();
     const token = localStorage.getItem('token');
-    // const token = '1234'
     console.log('check token from api = ',token)
     
     try {
@@ -282,12 +281,30 @@ onMounted( async () => {
     listData();
 });
 
+const closeEdit = () => {
+    item.dialog.value = false
+}
+
+const handleEdit = async (item) => {
+    const confirmEdit = confirm(`คุณต้องการแก้ไข ${item.fullname} ใช่หรือไม่?`);
+    if (confirmEdit) {
+        try {
+            await axios.post('http://localhost:7000/updateMember', {student_id:  item.student_id, fullname: item.fullname, username: item.username, password: item.password});
+            alert('แก้ไขข้อมูลสำเร็จ')
+            listData()
+        } catch (error) {
+            console.error('Error Editing member:', error);
+        }
+        
+    }
+}
+
 // ฟังก์ชันการลบ
 const handleDelete = async (item) => {
     const confirmDelete = confirm(`คุณต้องการลบ ${item.fullname} ใช่หรือไม่?`);
     if (confirmDelete) {
         try {
-            await axios.post('http://localhost:7000/deleteMember', { student_id: item.student_id });
+            await axios.post('http://localhost:7000/deleteMember', {student_id: item.student_id});
             alert('ลบข้อมูลสำเร็จ');
             listData(); // โหลดข้อมูลใหม่
         } catch (error) {
@@ -310,7 +327,7 @@ const uploadSingleFile = async () => {
         formData.append('username', username.value);
         formData.append('student_id', studentid.value);
         formData.append('password', password.value);
-        formData.append('fullname', fullname.value);
+        formData.append('fullname', name.value);
 
         try {
             const response = await axios.post('http://localhost:7000/insertMember', formData, {
@@ -335,6 +352,14 @@ const previewSingleFile = () => {
     } else {
         singleFilePreview.value = null;
     }
+}
+
+const goBack = () => {
+    router.push('/student_list2')
+}
+
+const goCheck = () => {
+    router.push('/student_list2')
 }
 
 const profile = () => {
